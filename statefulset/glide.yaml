@@ -1,0 +1,4 @@
+package: k8s-demo/statefulset
+import:
+- package: github.com/julienschmidt/httprouter
+  version: v1.3.0
