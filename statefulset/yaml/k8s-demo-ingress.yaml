@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: statefulset-demo-ingress
+spec:
+  rules:
+  - host: statefulset-demo.com
+    http:
+      paths:
+      - path: /api/v1/mode
+        backend:
+          serviceName: statefulset-demo-read
+          servicePort: 8080
+      # master only
+      - path: /api/v1/master-mode
+        backend:
+          serviceName: statefulset-demo-write
+          servicePort: 8080
+      
