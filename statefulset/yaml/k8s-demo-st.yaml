@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: statefulset-demo
+spec:
+  serviceName: statefulset-demo
+  replicas: 3
+  selector:
+    matchLabels:
+      app: statefulset-demo
+  template:
+    metadata:
+      labels:
+        app: statefulset-demo
+    spec:
+      initContainers:
+      - name: init-statefulset-demo
+        image: k8s.gcr.io/busybox
+        command:
+        - sh
+        - "-c"
+        - |
+          set -ex
+          ordinal=`echo $HOSTNAME | awk -F '-' '{print $NF}'`
+          if [[ $ordinal -eq 0 ]]; then
+            cp /mnt/config-map/master.cnf /mnt/conf.d/config.json
+          else
+            cp /mnt/config-map/slave.cnf /mnt/conf.d/config.json
+          fi
+        volumeMounts:
+        - name: conf
+          mountPath: /mnt/conf.d
+        - name: config-map
+          mountPath: /mnt/config-map
+      containers:
+      - name: statefulset-demo
+        image: statefulset-demo:0.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: restful
+        resources:
+          requests:
+            cpu: "500m"
+            memory: 2Gi
+        # These volume mounts are persistent. They are like inline claims,
+        # but not exactly because the names need to match exactly one of
+        # the stateful pod volumes.
+        volumeMounts:
+        - name: conf
+          mountPath: /app/config.json
+          subPath: config.json
+      volumes:
+      - name: config-map
+        configMap:
+          name: st-demo-cm
+      - name: conf
+        emptyDir: {}
