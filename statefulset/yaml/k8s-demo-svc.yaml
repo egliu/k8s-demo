@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: statefulset-demo
+  name: statefulset-demo-read
+spec:
+  ports:
+    - name: statefulset-demo
+      port: 8080
+  selector:
+    app: statefulset-demo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: statefulset-demo
+  name: statefulset-demo-write
+spec:
+  ports:
+    - name: statefulset-demo
+      port: 8080
+  selector:
+    statefulset.kubernetes.io/pod-name: statefulset-demo-0
